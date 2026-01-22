@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Snake Offline</title>
+<style>
+body {
+    background: #111;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: Arial;
+}
+canvas {
+    background: #000;
+}
+</style>
+</head>
+<body>
+
+<canvas id="game" width="400" height="400"></canvas>
+
+<script>
+const c = document.getElementById("game");
+const ctx = c.getContext("2d");
+
+let box = 20;
+let snake = [{x:200,y:200}];
+let dir = "RIGHT";
+let food = spawn();
+let dead = false;
+
+document.onkeydown = e=>{
+    if(e.key==="ArrowUp" && dir!=="DOWN") dir="UP";
+    if(e.key==="ArrowDown" && dir!=="UP") dir="DOWN";
+    if(e.key==="ArrowLeft" && dir!=="RIGHT") dir="LEFT";
+    if(e.key==="ArrowRight" && dir!=="LEFT") dir="RIGHT";
+};
+
+function spawn(){
+    return {
+        x: Math.floor(Math.random()*20)*box,
+        y: Math.floor(Math.random()*20)*box
+    };
+}
+
+function loop(){
+    if(dead){
+        ctx.fillStyle="red";
+        ctx.font="30px Arial";
+        ctx.fillText("YOU DIED",120,200);
+        return;
+    }
+
+    ctx.clearRect(0,0,400,400);
+
+    let head = {...snake[0]};
+    if(dir==="UP") head.y-=box;
+    if(dir==="DOWN") head.y+=box;
+    if(dir==="LEFT") head.x-=box;
+    if(dir==="RIGHT") head.x+=box;
+
+    if(head.x<0||head.y<0||head.x>=400||head.y>=400)
+        dead=true;
+
+    for(let s of snake)
+        if(s.x===head.x && s.y===head.y)
+            dead=true;
+
+    snake.unshift(head);
+
+    if(head.x===food.x && head.y===food.y)
+        food=spawn();
+    else
+        snake.pop();
+
+    ctx.fillStyle="lime";
+    for(let s of snake)
+        ctx.fillRect(s.x,s.y,box,box);
+
+    ctx.fillStyle="red";
+    ctx.fillRect(food.x,food.y,box,box);
+}
+
+setInterval(loop,100);
+</script>
+
+</body>
+</html>
